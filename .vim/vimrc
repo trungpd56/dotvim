@@ -1,0 +1,169 @@
+if !isdirectory(expand('~/.vim/undo'))
+  call mkdir(expand('~/.vim/undo'), 'p')
+endif
+
+" set clipboard=unnamedplus,unnamed
+set mouse=a
+set path+=**
+set wildmenu
+set wildignore+=*.pyc
+set smartindent
+set rnu nu
+set nowrap
+set hidden
+set smartcase
+set ignorecase
+set so=20 
+set incsearch
+set splitright
+set splitbelow
+set noswapfile
+set nobackup
+set nowritebackup
+set undofile
+set undodir=~/.vim/undo "make this folder first
+let mapleader = " "
+
+inoremap jk <Esc>
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap Y y$
+nnoremap U <C-r>
+nnoremap <Up> <C-u>zz<CR>
+nnoremap <Down> <C-d>zz<CR>
+nnoremap ; :
+vnoremap ; :
+nnoremap <leader><leader> <c-^>
+nnoremap <leader>gf :GFiles<Cr>
+nnoremap <leader>sf :Files<Cr>
+nnoremap <leader>sg :Rg<Cr>
+nnoremap / ms/
+nnoremap ? ms?
+nnoremap <expr> <silent> 0 col('.') == match(getline('.'),'\S')+1 ? '0' : '^'
+nnoremap <silent>sw :wincmd w<CR> 
+nnoremap <silent>sj :wincmd j<CR> 
+nnoremap <silent>sk :wincmd k<CR> 
+nnoremap <silent>sh :wincmd h<CR> 
+nnoremap <silent>sl :wincmd l<CR> 
+nnoremap <Left> gT 
+nnoremap <Right> gt 
+nnoremap <leader>b :ls<CR>:b<Space>
+
+let data_dir = '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.vim/plugged')
+Plug 'TomNomNom/xoria256.vim'
+Plug 'sheerun/vim-polyglot'
+Plug 'christoomey/vim-sort-motion'
+Plug 'christoomey/vim-system-copy'
+Plug 'christoomey/vim-titlecase'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'inkarkat/vim-ReplaceWithRegister'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'machakann/vim-highlightedyank'
+Plug 'markonm/traces.vim'
+Plug 'michaeljsmith/vim-indent-object'
+Plug 'mkitt/tabline.vim'
+Plug 'nelstrom/vim-visual-star-search'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'rhysd/clever-f.vim'
+Plug 'romainl/vim-cool'
+Plug 'romainl/vim-qf'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-rsi'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+Plug 'wellle/targets.vim'
+call plug#end()
+
+color xoria256
+let g:cool_total_matches = 1
+let g:highlightedyank_highlight_duration = 300
+let g:clever_f_smart_case = 1
+
+" Coc Settings
+let g:coc_filetype_map = {'yaml.ansible': 'ansible'}
+let g:coc_global_extensions = ['coc-json', '@yaegassy/coc-ansible', 'coc-sh', 'coc-pyright']
+set encoding=utf-8
+set updatetime=300
+set signcolumn=yes
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+inoremap <silent><expr> <c-@> coc#refresh()
+nnoremap <silent> K :call ShowDocumentation()<CR>
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gl <Plug>(coc-references)
+nmap <leader>rn <Plug>(coc-rename)
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Formatting selected code
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Map function and class text objects
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
+
+" Add `:Format` command to format current buffer
+command! -nargs=0 Format :call CocActionAsync('format')
+" Add `:Fold` command to fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+" Add `:OR` command for organize imports of the current buffer
+command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
+" Add (Neo)Vim's native statusline support
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+
